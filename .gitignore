@@ -1,0 +1,10 @@
+# Virtual environments
+venv/
+
+# Raw WiFi fingerprint scans
+fingerprints_raw.csv
+fingerprints_agg.csv
+wifi_raw/
+wifi_outputs/
+logs/
+
