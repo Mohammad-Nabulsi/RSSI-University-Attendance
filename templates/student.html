@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تسجيل حضور الطالب</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+            background: #f5f5f7;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 420px;
+            margin: 50px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            padding: 20px 24px 26px;
+        }
+        h1 {
+            font-size: 22px;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        p.subtitle {
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 4px;
+            font-size: 14px;
+        }
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 16px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 15px;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .error {
+            margin-top: 8px;
+            margin-bottom: 4px;
+            color: #b91c1c;
+            font-size: 13px;
+            text-align: center;
+        }
+        .hint {
+            margin-top: 14px;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .hint code {
+            background: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: "Consolas", monospace;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>تسجيل حضور الطالب</h1>
+    <p class="subtitle">أدخل بياناتك قبل بدء قياس الـ Wi-Fi.</p>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('student_page') }}">
+        <label for="student_id">الرقم الجامعي</label>
+        <input type="text" id="student_id" name="student_id"
+               value="{{ student_id }}" placeholder="مثال: 12218857">
+
+        <label for="section_code">كود المحاضرة / رقم الشعبة (يعطيك إياه الدكتور)</label>
+        <input type="text" id="section_code" name="section_code"
+               value="{{ section_code }}" placeholder="مثال: CIS204-01">
+
+        <label for="room_id">الغرفة (Room / Fingerprint)</label>
+        <select id="room_id" name="room_id">
+            {% for r in rooms %}
+                <option value="{{ r }}" {% if r == room_id %}selected{% endif %}>{{ r }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">تسجيل الدخول للمحاضرة</button>
+    </form>
+
+    <div class="hint">
+        <p>
+            بعد الضغط على <strong>تسجيل الدخول</strong>:
+        </p>
+        <ul>
+            <li>تأكّد إنك متصل على نفس شبكة الـ Wi-Fi في القاعة.</li>
+            <li>شغّل برنامج قياس الإشارة على جهازك باستخدام نفس الرقم الجامعي (student_id).</li>
+        </ul>
+        <p style="margin-top:6px;">
+            لو بتستخدم سكربت Python:
+            <br>
+            <code>python client.py --student-id 12218857 --room-id amadsignals</code>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

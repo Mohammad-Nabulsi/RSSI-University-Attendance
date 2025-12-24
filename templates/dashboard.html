@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة حضور WiFi</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+            background: #f5f5f7;
+            margin: 0;
+            padding: 20px 0;
+        }
+        .wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            padding: 20px 24px 26px;
+        }
+        h1 {
+            font-size: 22px;
+            margin-top: 0;
+            margin-bottom: 4px;
+        }
+        p.subtitle {
+            font-size: 13px;
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        form.filter {
+            margin-bottom: 20px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        label {
+            font-size: 13px;
+            margin-left: 4px;
+        }
+        select, input[type="date"] {
+            padding: 4px 6px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 13px;
+        }
+        button {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        h2 {
+            font-size: 18px;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 4px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px 8px;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #f2f2f2;
+        }
+        .status-present {
+            color: green;
+            font-weight: bold;
+        }
+        .status-unknown {
+            color: #999;
+        }
+        .small {
+            font-size: 12px;
+            color: #666;
+        }
+        .top-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        .top-links a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .top-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="top-links">
+        <span>لوحة الدكتور</span>
+        <a href="{{ url_for('student_page') }}">الانتقال إلى صفحة الطالب</a>
+    </div>
+
+    <h1>لوحة حضور WiFi</h1>
+    <p class="subtitle">
+        اختر الغرفة والتاريخ لمتابعة أي الطلاب تم احتساب حضورهم بناءً على إشارة الـ Wi-Fi.
+    </p>
+    <h3>👥 Students currently inside: {{ current_students_count }}</h3>
+    <form class="filter" method="get" action="{{ url_for('dashboard') }}">
+        <div>
+            <label for="room_id">الغرفة:</label>
+            <select id="room_id" name="room_id">
+                {% for r in rooms %}
+                    <option value="{{ r }}" {% if r == room_id %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="date">التاريخ:</label>
+            <input type="date" id="date" name="date" value="{{ date_str }}">
+        </div>
+
+        <div>
+            <button type="submit">تحديث العرض</button>
+        </div>
+    </form>
+
+    <h2>سجلات الحضور (حسب الإشارة)</h2>
+    {% if records %}
+        <table>
+            <thead>
+            <tr>
+                <th>الرقم الجامعي</th>
+                <th>كود المحاضرة / الشعبة</th>
+                <th>الحالة</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for rec in records %}
+                <tr>
+                    <td>{{ rec.student_id }}</td>
+                    <td>{{ rec.section_code or "-" }}</td>
+                    <td>
+                        {% if rec.status == 'present' %}
+                            <span class="status-present">حاضر</span>
+                        {% else %}
+                            <span class="status-unknown">{{ rec.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="small">لا توجد سجلات حضور محسوبة بعد لهذه الغرفة/التاريخ.</p>
+    {% endif %}
+
+    <h2>الطلاب الذين سجّلوا من واجهة الطالب (اليوم)</h2>
+    {% if registered_today %}
+        <table>
+            <thead>
+            <tr>
+                <th>الرقم الجامعي</th>
+                <th>كود المحاضرة / الشعبة</th>
+                <th>الغرفة</th>
+                <th>وقت التسجيل</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for reg in registered_today %}
+                <tr>
+                    <td>{{ reg.student_id }}</td>
+                    <td>{{ reg.section_code or "-" }}</td>
+                    <td>{{ reg.room_id }}</td>
+                    <td>{{ reg.registered_at }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="small">لا يوجد طلاب سجّلوا اليوم لهذه الغرفة من صفحة الطالب.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
