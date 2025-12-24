@@ -57,3 +57,6 @@ python client.py --student-id <STUDENT_ID> --room-id <ROOM_ID>
 
 
 ```
+
+
+Note for easiness of checking the attendance changing the required minutes to be considered present is set to 1
